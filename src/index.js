@@ -41,16 +41,20 @@ board.addEventListener('click', handler);
     
 function handler(event) {   
     let current = document.querySelector('.active'); 
-
-    if (current) {
-        document.querySelector('#currentTag').textContent = `Current tag: ` + current.tagName.toLowerCase();        
+    
+    if (current) {        
         current.classList.remove('active');  
-    }    
+    }   
+    
     event.target.classList.toggle('active');   
+    
 
-    // if (current) {        
-    // document.querySelector('#currentTag').textContent = `Current tag: ` + current.tagName.toLowerCase();       
-    // }  
+    activeTag(); 
+}
+
+function activeTag() {
+    
+    document.querySelector('#currentTag').textContent = `Current tag: ` + document.querySelector('.active').tagName.toLowerCase();
 }
 
 // let  = 
