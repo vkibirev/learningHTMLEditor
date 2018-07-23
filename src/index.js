@@ -23,10 +23,10 @@ const createTags = require('./add');
         ], {class: 'row'}), 
         createTags.tag('div', '', [
             createTags.tag('div', '', [
-                createTags.tag('input', ''),
-                createTags.tag('button', 'Set text'),
-                createTags.tag('button', 'Create tag'),
-                createTags.tag('button', 'Remove'),
+                createTags.tag('input', '', [], {id: 'input'}),
+                createTags.tag('button', 'Set text', [], {class: 'setter'}),
+                createTags.tag('button', 'Create tag', [], {class: 'createTag'}),
+                createTags.tag('button', 'Remove', [], {class: 'remove'}),
 
             ], {class: 'block-left'}),
             createTags.tag('div', '', [
@@ -46,22 +46,25 @@ function handler(event) {
         current.classList.remove('active');  
     }   
     
-    event.target.classList.toggle('active');   
-    
+    event.target.classList.toggle('active');    
 
     activeTag(); 
 }
 
-function activeTag() {
-    
+function activeTag() {    
     document.querySelector('#currentTag').textContent = `Current tag: ` + document.querySelector('.active').tagName.toLowerCase();
 }
 
-// let  = 
-// function tree() {
+let tags = ['h1', 'h2', 'p', 'ul', 'li'];
 
-    
-// }
+let set = document.querySelector('.setter');
+set.addEventListener('click', setText);
+function setText() {
+    let current = document.querySelector('.active');
+    if (current) {        
+        current.textContent = input.value;  
+    }
+}
 
 
 
