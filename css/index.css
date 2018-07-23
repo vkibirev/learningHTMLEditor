@@ -52,3 +52,11 @@ main {
 .board *.active {
     background: red;
 }
+
+li {
+    margin-left: 20px;
+}
+
+.schema {
+    
+}
