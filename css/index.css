@@ -1,0 +1,54 @@
+*, *::before, *::after {
+    box-sizing: border-box;
+  }
+
+html, body, main {
+    margin: 0;
+    padding: 0;
+    height: 100%;
+}
+
+main {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-flow: column;
+        flex-flow: column;
+}
+
+.row {
+    display: -ms-flexbox;
+    display: flex;
+    -ms-flex-flow: row;
+        flex-flow: row;
+    border-bottom: 1px solid black;    
+}
+
+.row:nth-child(1){
+    -ms-flex: 1 1;
+        flex: 1 1;
+}
+
+.block-left, .block-right, .block-bottom {
+    -ms-flex: 1 1;
+        flex: 1 1;
+    padding: 20px;
+    overflow: auto;
+}
+
+.block-left {
+    background-color: #DDD;
+}
+
+.block-right {
+    background-color: #df9;
+}
+
+.board * {
+    border: 1px solid black;
+    background: white;
+    padding: 5px;
+}
+
+.board *.active {
+    background: red;
+}
