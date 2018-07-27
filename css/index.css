@@ -58,5 +58,9 @@ li {
 }
 
 .schema {
-    
+    white-space: pre;
+}
+
+.schema-level {
+    margin-left: 20px;
 }

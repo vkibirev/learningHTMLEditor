@@ -5,10 +5,7 @@ const createTags = require('./add');
         createTags.tag(        
             'div', '', [
             createTags.tag('div', '', [
-                createTags.tag('ul', '', [                    
-                    createTags.tag('li', 'hello', []),                    
-                    createTags.tag('li', 'world', []),
-                ])
+                createTags.tag('div', '')
             ], {class: 'block-left schema'}),
             createTags.tag('div', '', [
                 createTags.tag('div', '', [
@@ -36,8 +33,12 @@ const createTags = require('./add');
     ]),
     document.querySelector('script'));
 
-let board = document.querySelector('.board');
-board.addEventListener('click', clickOnBoardItem());
+function event(selector, func) {
+    let item = document.querySelector(selector);
+    return item.addEventListener('click', func);
+}
+
+event('.board', clickOnBoardItem());
 
 function activeExists(){
     let active = document.querySelector('.active');
@@ -68,76 +69,142 @@ function showCurrentTag(target) {
     
     if (activeExists()) {
         return currentTagField.textContent = `Current tag: ${activeTagName}`;
-    }
+    }    
     return;    
 }
 
-
-
-let set = document.querySelector('.setter');
-set.addEventListener('click', setText);
+event('.setter', setText);
 
 function setText() {
-    if (activeExists() && input.value === '') {  
-        return activeExists().textContent = "default"; 
+    if (activeExists() && input.value === '') {
+          
+        activeExists().textContent = "default"; 
+        show();
+        return;
     }
-    return activeExists().textContent = input.value;
-    
+    activeExists().textContent = input.value; 
+    show();
+    return;
 }
 
-let createTag = document.querySelector('.createTag');
-createTag.addEventListener('click', addTag);
+event('.createTag', addTag);
 
-function addTag() {
-    
+function addTag() {    
     let tags = ['h1', 'h2', 'h3', 'h4', 'div', 'p', 'ul', 'ol', 'li'];
     if (activeExists() && !tags.includes(input.value)) {     
         alert(`${input.value} value aren't allowed you can use only these tags: h1, h2, h3, h4, div, p, ul, ol, li`);                   
         return;
     }
-    return activeExists().appendChild(createTags.tag(input.value, ''));
+    activeExists().appendChild(createTags.tag(input.value, ''));
+    show();
+    return;
 }
 
-let remove = document.querySelector('.remove');
-remove.addEventListener('click', removeTag);
+event('.remove', removeTag);
 
 function removeTag() {
     if (activeExists()) {
-        return activeExists().remove();
+        
+        activeExists().remove();        
     }
+    show();
+    return 
+}
+
+function clear(element) {
+    document.querySelector(element).innerHTML = '';
 }
 
 
+//Functions that try to show each elem in left part in separate div (Doesn't work correctly yet)
+// -----------------------------------------------------------
 
-// let set = document.querySelector('.setter');
-// let createTag = document.querySelector('.createTag');
-// let current = document.querySelector('.active');
-// set.addEventListener('click', adder(setText, current));
-// createTag.addEventListener('click', adder(createTag, current));
+// function show() {
+//     let boardPart = document.querySelector('.board');
+//     let generated = showHTMLTree();
+//     generated(boardPart);
+// }
+
+// function showHTMLTree() {    
+//     let allItemstags = '';
+
+//     return function f(boardPart) {
+//         let childrenItem = boardPart.children;
+//         let tagItem;
+//         let divCount = 1;
+
+//         for (let i = 0; i < childrenItem.length; i++) {           
+            
+//             let parentOpenTag = `<${boardPart.children[i].tagName}>`
+//             let parentCloseTag = `</${boardPart.children[i].tagName}>`
 
 
-// function adder(func, cur) {
-    
-//     console.log(cur);
-    
-//     if (cur) {        
-//         return func;
+            
+
+
+//             tagItem = document.querySelector(`.schema > div:nth-child(${divCount})`).appendChild(
+//                 createTags.tag('div', 
+//                                `${parentOpenTag}
+//                                 ${boardPart.children[i].textContent}     
+//                                ${parentCloseTag}`,
+//                                [], 
+//                                {class: 'schema-level'})
+//             );
+            
+//             if (boardPart.children[i].children.length !== 0) {                
+//                 f(boardPart.children[i]);                         
+//             }
+            
+//         }
+//         return tagItem;
 //     }
 // }
-
-// function setText() {
-//     console.log('testesteste');
-// }
-
-// function createTagFunc() {
-//     console.log('create tag');
-    
-// }
+// show();
 
 
+// ${boardPart.children[i].children.length !== 0 ? f(boardPart.children[i]) : boardPart.children[i].text}
 
+//Functions that try show elements of the left part using string
+// -----------------------------------------------------------
 
+function show() {
+    let boardPart = document.querySelector('.board');
+    let tagsPart = document.querySelector('.schema');
+    let generated = showHTMLTree();
 
+    if(boardPart) {
+        return tagsPart.textContent = generated(boardPart);
+    } else {
+        return tagsPart.textContent = '';
+    }    
+}
 
+function showHTMLTree() {  
+    let count = 0;  
+    let allItemstags = '';
 
+    return function f(boardPart) {
+        let childrenItem = boardPart.children;
 
+        for (let i = 0; i < childrenItem.length; ++i) {
+            let parentOpenTag = `${'\t'.repeat(count)}<${childrenItem[i].tagName}>`
+            let parentCloseTag = `${'\t'.repeat(count)}</${childrenItem[i].tagName}>`
+
+            allItemstags += `\n ${parentCloseTag}`;
+
+            if (childrenItem[i].textContent && childrenItem[i].children.length === 0) {
+                allItemstags += '\n'+'\t'.repeat(count + 1) + childrenItem[i].textContent;
+            }
+
+            if (childrenItem[i].children.length !== 0) {    
+                ++count;            
+                f(childrenItem[i]);                
+            } 
+
+            allItemstags += `\n ${parentCloseTag}`;
+        }
+        return allItemstags;
+    }
+}
+
+show();
