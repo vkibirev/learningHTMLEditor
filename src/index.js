@@ -4,8 +4,8 @@ const createTags = require('./add');
     createTags.tag('main', '', [
         createTags.tag(        
             'div', '', [
-            createTags.tag('div', '', [
-                createTags.tag('div', '')
+            createTags.tag('div', '', [     
+                createTags.tag('div', '', [], {class: 'schema-level'}),
             ], {class: 'block-left schema'}),
             createTags.tag('div', '', [
                 createTags.tag('div', '', [
@@ -119,92 +119,79 @@ function clear(element) {
 //Functions that try to show each elem in left part in separate div (Doesn't work correctly yet)
 // -----------------------------------------------------------
 
+function show() {
+    let boardPart = document.querySelector('.board');
+    let generated = showHTMLTree();
+    generated(boardPart);
+}
+
+function showHTMLTree() {   
+
+    return function f(boardPart) {
+        let childrenItem = boardPart.children;
+        let parentSection = document.querySelector('.schema').getElementsByClassName('schema-level');
+        let lastElement = parentSection[parentSection.length - 1];
+
+        for (let i = 0; i < childrenItem.length; i++) {                        
+            
+            let parentOpenTag = childrenItem[i].tagName;
+            let parentCloseTag = childrenItem[i].tagName;
+
+            lastElement.innerHTML = 
+            `<div class="schema-level">
+                ${parentOpenTag}
+                ${parentCloseTag}
+            </div>`;
+            
+            if (childrenItem[i].children.length !== 0) {                
+                f(childrenItem[i]);                         
+            }                        
+        }        
+    }
+}
+show();
+
+//Functions that try show elements of the left part using string (works correctly)
+// -----------------------------------------------------------
+
 // function show() {
 //     let boardPart = document.querySelector('.board');
+//     let tagsPart = document.querySelector('.schema');
 //     let generated = showHTMLTree();
-//     generated(boardPart);
+
+//     if(boardPart) {
+//         return tagsPart.textContent = generated(boardPart);
+//     } else {
+//         return tagsPart.textContent = '';
+//     }    
 // }
 
-// function showHTMLTree() {    
+// function showHTMLTree() {  
+//     let count = 0;  
 //     let allItemstags = '';
 
 //     return function f(boardPart) {
 //         let childrenItem = boardPart.children;
-//         let tagItem;
-//         let divCount = 1;
 
-//         for (let i = 0; i < childrenItem.length; i++) {           
-            
-//             let parentOpenTag = `<${boardPart.children[i].tagName}>`
-//             let parentCloseTag = `</${boardPart.children[i].tagName}>`
+//         for (let i = 0; i < childrenItem.length; ++i) {
+//             let parentOpenTag = `${'\t'.repeat(count)}<${childrenItem[i].tagName}>`
+//             let parentCloseTag = `${'\t'.repeat(count)}</${childrenItem[i].tagName}>`
 
+//             allItemstags += `\n ${parentCloseTag}`;
 
-            
-
-
-//             tagItem = document.querySelector(`.schema > div:nth-child(${divCount})`).appendChild(
-//                 createTags.tag('div', 
-//                                `${parentOpenTag}
-//                                 ${boardPart.children[i].textContent}     
-//                                ${parentCloseTag}`,
-//                                [], 
-//                                {class: 'schema-level'})
-//             );
-            
-//             if (boardPart.children[i].children.length !== 0) {                
-//                 f(boardPart.children[i]);                         
+//             if (childrenItem[i].textContent && childrenItem[i].children.length === 0) {
+//                 allItemstags += '\n'+'\t'.repeat(count + 1) + childrenItem[i].textContent;
 //             }
-            
+
+//             if (childrenItem[i].children.length !== 0) {    
+//                 ++count;            
+//                 f(childrenItem[i]);                
+//             } 
+
+//             allItemstags += `\n ${parentCloseTag}`;
 //         }
-//         return tagItem;
+//         return allItemstags;
 //     }
 // }
+
 // show();
-
-
-// ${boardPart.children[i].children.length !== 0 ? f(boardPart.children[i]) : boardPart.children[i].text}
-
-//Functions that try show elements of the left part using string
-// -----------------------------------------------------------
-
-function show() {
-    let boardPart = document.querySelector('.board');
-    let tagsPart = document.querySelector('.schema');
-    let generated = showHTMLTree();
-
-    if(boardPart) {
-        return tagsPart.textContent = generated(boardPart);
-    } else {
-        return tagsPart.textContent = '';
-    }    
-}
-
-function showHTMLTree() {  
-    let count = 0;  
-    let allItemstags = '';
-
-    return function f(boardPart) {
-        let childrenItem = boardPart.children;
-
-        for (let i = 0; i < childrenItem.length; ++i) {
-            let parentOpenTag = `${'\t'.repeat(count)}<${childrenItem[i].tagName}>`
-            let parentCloseTag = `${'\t'.repeat(count)}</${childrenItem[i].tagName}>`
-
-            allItemstags += `\n ${parentCloseTag}`;
-
-            if (childrenItem[i].textContent && childrenItem[i].children.length === 0) {
-                allItemstags += '\n'+'\t'.repeat(count + 1) + childrenItem[i].textContent;
-            }
-
-            if (childrenItem[i].children.length !== 0) {    
-                ++count;            
-                f(childrenItem[i]);                
-            } 
-
-            allItemstags += `\n ${parentCloseTag}`;
-        }
-        return allItemstags;
-    }
-}
-
-show();
