@@ -111,9 +111,9 @@ function removeTag() {
     return 
 }
 
-function clear(element) {
-    document.querySelector(element).innerHTML = '';
-}
+// function clear(element) {
+//     document.querySelector(element).innerHTML = '';
+// }
 
 
 //Functions that try to show each elem in left part in separate div (Doesn't work correctly yet)
@@ -130,26 +130,33 @@ function showHTMLTree() {
     return function f(boardPart) {
         let childrenItem = boardPart.children;
         let parentSection = document.querySelector('.schema').getElementsByClassName('schema-level');
-        let lastElement = parentSection[parentSection.length - 1];
 
-        for (let i = 0; i < childrenItem.length; i++) {                        
+        for (let i = 0; i < childrenItem.length; i++) {  
+            let lastElement = parentSection[parentSection.length - 1];
             
             let parentOpenTag = childrenItem[i].tagName;
             let parentCloseTag = childrenItem[i].tagName;
-
+            
             lastElement.innerHTML = 
             `<div class="schema-level">
-                ${parentOpenTag}
-                ${parentCloseTag}
-            </div>`;
+            ${parentOpenTag}  
+                
+                ${childrenItem[i].children.length > 0 ? `<div class="schema-level">${f(childrenItem[i])}</div>` : `<div class="schema-level"> ${childrenItem[i].textContent}</div>`}
+                  
+            ${parentCloseTag}
+            </div>`
             
             if (childrenItem[i].children.length !== 0) {                
                 f(childrenItem[i]);                         
-            }                        
+            } 
         }        
     }
 }
 show();
+
+//${childrenItem[i].children.length > 0 ? `<div class="schema-level">${f(childrenItem[i])}</div>` : `<div class="schema-level"> ${childrenItem[i].textContent}</div>`}      
+// ${childrenItem[i].children.length !== 0 ? f(childrenItem[i]) : 'test'}
+
 
 //Functions that try show elements of the left part using string (works correctly)
 // -----------------------------------------------------------
