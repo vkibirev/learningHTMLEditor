@@ -1,11 +1,11 @@
-const createTags = require('./add');
+const createTags = require('./add'); //imported function that create HTML elements on the page
 
+//Creating the default HTML structure using imported tag function that we call from createTags
     document.body.insertBefore(    
     createTags.tag('main', '', [
         createTags.tag(        
             'div', '', [
             createTags.tag('div', '', [     
-                createTags.tag('div', '', [], {class: 'schema-level'}),
             ], {class: 'block-left schema'}),
             createTags.tag('div', '', [
                 createTags.tag('div', '', [
@@ -33,13 +33,33 @@ const createTags = require('./add');
     ]),
     document.querySelector('script'));
 
+//Function that create eventListener for the item(selector) 
+//and runc necessery function for this item(func) 
 function event(selector, func) {
     let item = document.querySelector(selector);
     return item.addEventListener('click', func);
 }
 
-event('.board', clickOnBoardItem());
+//Function-decorator that sync right(board) part of the screen with left(HTML structure) part of the screen
+function addSyncEffect(func) {
+    function wrapper() {                
+        let result = func();
+        show();
+        return result;
+    }
+    return wrapper;
+}
 
+addTag = addSyncEffect(addTag);
+setText = addSyncEffect(setText);
+removeTag = addSyncEffect(removeTag);
+
+event('.board', clickOnBoardItem());
+event('.setter', setText);
+event('.createTag', addTag);
+event('.remove', removeTag);
+
+//Function that check if some tag on the board is active now
 function activeExists(){
     let active = document.querySelector('.active');
     if(active){
@@ -47,8 +67,9 @@ function activeExists(){
     }
     return false;
 }
-    
-function clickOnBoardItem(event) {
+
+//Function that mark clicked tag as active by adding ".active" class   
+function clickOnBoardItem() {
     let tempActiveTag;
 
     return function userClick(event) {
@@ -63,7 +84,8 @@ function clickOnBoardItem(event) {
     }
 }
 
-function showCurrentTag(target) {
+//Function that show the name of the active tag near "Current tag: "
+function showCurrentTag() {
     let activeTagName = activeExists().tagName.toLowerCase();
     let currentTagField =  document.querySelector('#currentTag');
     
@@ -73,132 +95,71 @@ function showCurrentTag(target) {
     return;    
 }
 
-event('.setter', setText);
-
+//Function that set text in the active tag on board
 function setText() {
-    if (activeExists() && input.value === '') {
-          
-        activeExists().textContent = "default"; 
-        show();
-        return;
+    if (activeExists() && input.value === '') {          
+        return activeExists().textContent = "default"; 
     }
-    activeExists().textContent = input.value; 
-    show();
-    return;
+    return activeExists().textContent = input.value; 
 }
 
-event('.createTag', addTag);
-
+//function that add tag written in the input field in the active tag on the board
 function addTag() {    
     let tags = ['h1', 'h2', 'h3', 'h4', 'div', 'p', 'ul', 'ol', 'li'];
     if (activeExists() && !tags.includes(input.value)) {     
         alert(`${input.value} value aren't allowed you can use only these tags: h1, h2, h3, h4, div, p, ul, ol, li`);                   
         return;
     }
-    activeExists().appendChild(createTags.tag(input.value, ''));
-    show();
-    return;
+    return activeExists().appendChild(createTags.tag(input.value, ''));
 }
 
-event('.remove', removeTag);
-
+//Function that delete the active tag from board
 function removeTag() {
-    if (activeExists()) {
-        
+    if (activeExists()) {        
         activeExists().remove();        
     }
-    show();
-    return 
+    return; 
 }
 
-// function clear(element) {
-//     document.querySelector(element).innerHTML = '';
-// }
-
-
-//Functions that try to show each elem in left part in separate div (Doesn't work correctly yet)
-// -----------------------------------------------------------
-
+//Function that 
 function show() {
     let boardPart = document.querySelector('.board');
+    let tagsPart = document.querySelector('.schema');
     let generated = showHTMLTree();
-    generated(boardPart);
+
+    if(boardPart) {
+        return tagsPart.textContent = generated(boardPart);
+    } else {
+        return tagsPart.textContent = '';
+    }    
 }
 
-function showHTMLTree() {   
+//Function that compose and show HTML tag structure using structure from the board
+function showHTMLTree() {  
+    let count = 0;  
+    let allItemstags = '';
 
     return function f(boardPart) {
         let childrenItem = boardPart.children;
-        let parentSection = document.querySelector('.schema').getElementsByClassName('schema-level');
 
-        for (let i = 0; i < childrenItem.length; i++) {  
-            let lastElement = parentSection[parentSection.length - 1];
-            
-            let parentOpenTag = childrenItem[i].tagName;
-            let parentCloseTag = childrenItem[i].tagName;
-            
-            lastElement.innerHTML = 
-            `<div class="schema-level">
-            ${parentOpenTag}  
-                
-                ${childrenItem[i].children.length > 0 ? `<div class="schema-level">${f(childrenItem[i])}</div>` : `<div class="schema-level"> ${childrenItem[i].textContent}</div>`}
-                  
-            ${parentCloseTag}
-            </div>`
-            
-            if (childrenItem[i].children.length !== 0) {                
-                f(childrenItem[i]);                         
+        for (let i = 0; i < childrenItem.length; ++i) {
+            let parentOpenTag = `${'\t'.repeat(count)}<${childrenItem[i].tagName}>`
+            let parentCloseTag = `${'\t'.repeat(count)}</${childrenItem[i].tagName}>`
+
+            allItemstags += `\n ${parentOpenTag}`;
+
+            if (childrenItem[i].textContent && childrenItem[i].children.length === 0) {
+                allItemstags += '\n'+'\t'.repeat(count + 1) + childrenItem[i].textContent;
+            }
+
+            if (childrenItem[i].children.length !== 0) {    
+                ++count;            
+                f(childrenItem[i]);                
             } 
-        }        
+
+            allItemstags += `\n ${parentCloseTag}`;
+        }
+        return allItemstags;
     }
 }
 show();
-
-//${childrenItem[i].children.length > 0 ? `<div class="schema-level">${f(childrenItem[i])}</div>` : `<div class="schema-level"> ${childrenItem[i].textContent}</div>`}      
-// ${childrenItem[i].children.length !== 0 ? f(childrenItem[i]) : 'test'}
-
-
-//Functions that try show elements of the left part using string (works correctly)
-// -----------------------------------------------------------
-
-// function show() {
-//     let boardPart = document.querySelector('.board');
-//     let tagsPart = document.querySelector('.schema');
-//     let generated = showHTMLTree();
-
-//     if(boardPart) {
-//         return tagsPart.textContent = generated(boardPart);
-//     } else {
-//         return tagsPart.textContent = '';
-//     }    
-// }
-
-// function showHTMLTree() {  
-//     let count = 0;  
-//     let allItemstags = '';
-
-//     return function f(boardPart) {
-//         let childrenItem = boardPart.children;
-
-//         for (let i = 0; i < childrenItem.length; ++i) {
-//             let parentOpenTag = `${'\t'.repeat(count)}<${childrenItem[i].tagName}>`
-//             let parentCloseTag = `${'\t'.repeat(count)}</${childrenItem[i].tagName}>`
-
-//             allItemstags += `\n ${parentCloseTag}`;
-
-//             if (childrenItem[i].textContent && childrenItem[i].children.length === 0) {
-//                 allItemstags += '\n'+'\t'.repeat(count + 1) + childrenItem[i].textContent;
-//             }
-
-//             if (childrenItem[i].children.length !== 0) {    
-//                 ++count;            
-//                 f(childrenItem[i]);                
-//             } 
-
-//             allItemstags += `\n ${parentCloseTag}`;
-//         }
-//         return allItemstags;
-//     }
-// }
-
-// show();
