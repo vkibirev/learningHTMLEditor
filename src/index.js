@@ -44,7 +44,7 @@ function event(selector, func) {
 function addSyncEffect(func) {
     function wrapper() {                
         let result = func();
-        show();
+        syncBlocks(); //call syncBlocks() function to update left part(tag sturcture) of the screen
         return result;
     }
     return wrapper;
@@ -121,45 +121,37 @@ function removeTag() {
     return; 
 }
 
-//Function that 
-function show() {
-    let boardPart = document.querySelector('.board');
-    let tagsPart = document.querySelector('.schema');
-    let generated = showHTMLTree();
-
-    if(boardPart) {
-        return tagsPart.textContent = generated(boardPart);
+//Function that render text data that is displayed in the innerHTML of left block
+function renderTag(tag, offset=5) {
+    let tagName = tag.tagName.toLowerCase();
+    let content = '';
+    let space = '&nbsp'.repeat(offset);
+    
+    if (tag.children.length) {
+        for (let i = 0; i < tag.children.length; i++){       
+            content += renderTag(tag.children[i], offset*2); 
+        }    
     } else {
-        return tagsPart.textContent = '';
-    }    
-}
-
-//Function that compose and show HTML tag structure using structure from the board
-function showHTMLTree() {  
-    let count = 0;  
-    let allItemstags = '';
-
-    return function f(boardPart) {
-        let childrenItem = boardPart.children;
-
-        for (let i = 0; i < childrenItem.length; ++i) {
-            let parentOpenTag = `${'\t'.repeat(count)}<${childrenItem[i].tagName}>`
-            let parentCloseTag = `${'\t'.repeat(count)}</${childrenItem[i].tagName}>`
-
-            allItemstags += `\n ${parentOpenTag}`;
-
-            if (childrenItem[i].textContent && childrenItem[i].children.length === 0) {
-                allItemstags += '\n'+'\t'.repeat(count + 1) + childrenItem[i].textContent;
-            }
-
-            if (childrenItem[i].children.length !== 0) {    
-                ++count;            
-                f(childrenItem[i]);                
-            } 
-
-            allItemstags += `\n ${parentCloseTag}`;
-        }
-        return allItemstags;
+        content = space.repeat(2) + tag.textContent;
     }
+
+    result = `${space}&lt${tagName}&gt<br>${content}<br>${space}&lt/${tagName}&gt<br>`;
+    return result;
 }
-show();
+
+//Function that run synchronization of right and left blocks
+//HTML tags structure is displayed in the left block as text in the innerHTML
+function syncBlocks() {
+    let text = '';
+    let board = document.querySelector('.board');
+    let markup = document.querySelector('.schema');
+    let c = board.children;
+    console.log(c.children);
+    
+    for(let i = 0; i < c.length; i++) {
+        text += renderTag(c[i]);
+    }   
+
+    markup.innerHTML = text;
+}
+syncBlocks();
